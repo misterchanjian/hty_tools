@@ -88,6 +88,6 @@
     "typescript": "^5"
   },
   "scripts": {
-    "prepare": "node scripts/patch-jose.js"
+    "prepare": "node scripts/patch-jose.js && next build"
   }
 }
