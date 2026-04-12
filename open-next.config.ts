@@ -2,9 +2,26 @@ import type { OpenNextConfig } from '@opennextjs/cloudflare'
 
 const config: OpenNextConfig = {
   default: {
-    // Disable middleware worker to avoid WORKER_SELF_REFERENCE error
-    // The server function worker won't try to bind to a non-existent middleware
-    middleware: false,
+    override: {
+      wrapper: 'cloudflare-node',
+      converter: 'edge',
+      proxyExternalRequest: 'fetch',
+      incrementalCache: 'dummy',
+      tagCache: 'dummy',
+      queue: 'dummy',
+    },
+  },
+  edgeExternals: ['node:crypto'],
+  middleware: {
+    external: true,
+    override: {
+      wrapper: 'cloudflare-edge',
+      converter: 'edge',
+      proxyExternalRequest: 'fetch',
+      incrementalCache: 'dummy',
+      tagCache: 'dummy',
+      queue: 'dummy',
+    },
   },
 }
 
