@@ -91,6 +91,6 @@
   },
   "scripts": {
     "prepare": "node scripts/patch-jose.js",
-    "build": "next build"
+    "build": "node scripts/patch-jose.js && next build && opennextjs-cloudflare build"
   }
 }
