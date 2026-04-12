@@ -70,6 +70,9 @@ export function UserNav() {
 
   const handleLogout = async () => {
     try {
+      // 清除水分管理系统的所有本地数据
+      localStorage.removeItem('cc_moisture_data');
+      localStorage.removeItem('cc_moisture_history');
       await signOut(auth);
       router.push('/login');
     } catch (error) {

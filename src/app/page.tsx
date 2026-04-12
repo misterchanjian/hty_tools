@@ -1,42 +1,25 @@
+"use client";
 
-'use client';
-
-import { useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-import { LumaSpin } from '@/components/ui/luma-spin';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getSession } from "@/lib/auth";
 
 export default function Home() {
-  const { user, loading, role } = useAuth();
   const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
-    if (pathname === '/') {
-      if (!loading) {
-        if (user) {
-          if (role === 'employer') {
-            router.push('/employer/dashboard');
-          } else {
-            router.push('/dashboard');
-          }
-        } else {
-          router.push('/login');
-        }
-      }
+    const session = getSession();
+    if (session) {
+      router.replace("/(app)/dashboard");
+    } else {
+      router.replace("/login");
     }
-  }, [user, loading, role, router, pathname]);
-
-  if (pathname !== '/') {
-    return null;
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-background">
-      <div className="flex flex-col items-center gap-4">
-        <LumaSpin />
-        <p className="text-muted-foreground">Loading CareerCompass...</p>
-      </div>
+    <div className="flex h-screen w-full items-center justify-center bg-slate-950">
+      <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
     </div>
   );
 }
