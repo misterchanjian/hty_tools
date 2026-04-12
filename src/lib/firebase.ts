@@ -22,23 +22,30 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "",
 };
 
-// Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
-const storage = getStorage(app);
-const db =
-  typeof window === "undefined"
-    ? getFirestore(app)
-    : (() => {
-        try {
-          return initializeFirestore(app, {
-            localCache: persistentLocalCache({
-              tabManager: persistentMultipleTabManager(),
-            }),
-          });
-        } catch {
-          return getFirestore(app);
-        }
-      })();
+// Only initialize Firebase when a valid API key is present.
+// This allows the app to build/deploy without Firebase env vars.
+const hasFirebaseConfig = !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+
+const app = hasFirebaseConfig
+  ? (!getApps().length ? initializeApp(firebaseConfig) : getApp())
+  : null;
+
+const auth = app ? getAuth(app) : null;
+const storage = app ? getStorage(app) : null;
+const db = app
+  ? (typeof window === "undefined"
+      ? getFirestore(app)
+      : (() => {
+          try {
+            return initializeFirestore(app, {
+              localCache: persistentLocalCache({
+                tabManager: persistentMultipleTabManager(),
+              }),
+            });
+          } catch {
+            return getFirestore(app);
+          }
+        })())
+  : null;
 
 export { app, auth, db, storage };

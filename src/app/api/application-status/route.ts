@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import { handleApplicationStatusChange } from "@/lib/automated-email-service";
 import { withRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
