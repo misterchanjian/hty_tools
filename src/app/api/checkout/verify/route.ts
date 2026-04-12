@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe, PLAN_DETAILS } from "@/lib/stripe";
+import { getStripe, PLAN_DETAILS } from "@/lib/stripe";
 import { requireAuth } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Retrieve the checkout session from Stripe
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const session = await getStripe().checkout.sessions.retrieve(sessionId);
 
     if (!session) {
       return NextResponse.json(

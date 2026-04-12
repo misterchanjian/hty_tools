@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe, PLAN_DETAILS } from "@/lib/stripe";
+import { getStripe, PLAN_DETAILS } from "@/lib/stripe";
 import { withRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { requireAuth, validateBody, validators, validationErrorResponse } from "@/lib/api-auth";
 
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:9002";
 
     // Create Stripe Checkout Session
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
         {

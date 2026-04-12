@@ -1,16 +1,33 @@
 import Stripe from "stripe";
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error("STRIPE_SECRET_KEY is not set in environment variables");
+// Lazy Stripe instance - only initializes when actually needed
+let _stripe: Stripe | null = null;
+
+export function getStripe(): Stripe {
+  if (!_stripe) {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+      throw new Error("STRIPE_SECRET_KEY is not set in environment variables");
+    }
+    _stripe = new Stripe(key, {
+      apiVersion: "2025-12-15.clover",
+      typescript: true,
+    });
+  }
+  return _stripe;
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-12-15.clover",
-  typescript: true,
-});
+// For backward compatibility - deprecated, use getStripe() instead
+export const stripe = {
+  checkout: {
+    sessions: {
+      create: async (...args: Parameters<Stripe["checkout"]["sessions"]["create"]>) =>
+        getStripe().checkout.sessions.create(...args),
+    },
+  },
+};
 
 // Price IDs for each plan (you'll create these in Stripe Dashboard)
-// For now using placeholder IDs - replace with actual Stripe Price IDs
 export const STRIPE_PRICE_IDS: Record<string, { monthly: string; yearly: string }> = {
   pro: {
     monthly: process.env.STRIPE_PRO_MONTHLY_PRICE_ID || "price_pro_monthly",
@@ -26,7 +43,7 @@ export const STRIPE_PRICE_IDS: Record<string, { monthly: string; yearly: string 
   },
   business: {
     monthly: process.env.STRIPE_BUSINESS_MONTHLY_PRICE_ID || "price_business_monthly",
-    yearly: process.env.STRIPE_BUSINESS_YEARLY_PRICE_ID || "price_business_yearly",
+    yearly: process.env.STRICE_BUSINESS_YEARLY_PRICE_ID || "price_business_yearly",
   },
 };
 
@@ -39,10 +56,10 @@ export const PLAN_DETAILS: Record<string, {
   pro: {
     name: "Pro Plan",
     description: "Unlimited applications, saved jobs, profile boost & analytics",
-    prices: { monthly: 999, yearly: 699 }, // In cents
+    prices: { monthly: 999, yearly: 699 },
   },
   premium: {
-    name: "Premium Plan", 
+    name: "Premium Plan",
     description: "AI resume review, skill gap analysis, salary insights & career coaching",
     prices: { monthly: 1999, yearly: 1499 },
   },
