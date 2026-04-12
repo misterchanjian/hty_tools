@@ -37,3 +37,6 @@ PERFORMANCE_OPTIMIZATION_REPORT.md
 .dev.vars
 
 
+
+# OpenNext build output (generated during build)
+.open-next/
