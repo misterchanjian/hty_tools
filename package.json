@@ -2,15 +2,6 @@
   "name": "nextn",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev --turbopack -p 9002",
-    "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
-    "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "typecheck": "tsc --noEmit"
-  },
   "dependencies": {
     "@genkit-ai/firebase": "^1.15.5",
     "@genkit-ai/googleai": "^1.15.5",
@@ -62,7 +53,7 @@
     "genkit": "^1.15.5",
     "gsap": "^3.14.2",
     "html2canvas": "^1.4.1",
-    "jose": "^5.9.6",
+    "jose": "^5.10.0",
     "jspdf": "^4.2.0",
     "lucide-react": "^0.475.0",
     "motion": "^12.25.0",
@@ -85,9 +76,6 @@
     "vaul": "^1.1.2",
     "zod": "^3.24.2"
   },
-  "overrides": {
-    "fast-xml-parser": "4.5.4"
-  },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
@@ -98,5 +86,8 @@
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
+  },
+  "scripts": {
+    "prepare": "node scripts/patch-jose.js"
   }
 }
