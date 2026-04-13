@@ -90,6 +90,8 @@
     "typescript": "^5"
   },
   "scripts": {
-    "build": "patch-jose && next build"
+    "prepare": "node scripts/patch-jose.js",
+    "build": "node scripts/patch-jose.js && next build",
+    "deploy": "npx wrangler deploy --no-bundle"
   }
 }
