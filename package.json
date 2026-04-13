@@ -92,6 +92,6 @@
   "scripts": {
     "prepare": "node scripts/patch-jose.js",
     "build": "node scripts/patch-jose.js && next build",
-    "deploy": "bash scripts/deploy-cloudflare.sh"
+    "deploy": "npx opennextjs-cloudflare deploy"
   }
 }
