@@ -1,0 +1,399 @@
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/:path*",
+      "headers": [
+        {
+          "key": "X-DNS-Prefetch-Control",
+          "value": "on"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(self), microphone=(self), geolocation=(self), interest-cohort=()"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://apis.google.com https://*.firebaseapp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://res.cloudinary.com https://placehold.co https://i.postimg.cc https://*.googleusercontent.com https://*.google.com https://firebasestorage.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://api.stripe.com wss://*.firebaseio.com https://firestore.googleapis.com https://*.firebaseapp.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-ancestors 'self'; form-action 'self'; frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://*.firebaseapp.com https://accounts.google.com https://apis.google.com; base-uri 'self'; upgrade-insecure-requests"
+        }
+      ],
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    }
+  ],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/api/genkit/[...path]",
+      "regex": "^/api/genkit/(.+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPpath": "nxtPpath"
+      },
+      "namedRegex": "^/api/genkit/(?<nxtPpath>.+?)(?:/)?$"
+    },
+    {
+      "page": "/chat/[chatId]",
+      "regex": "^/chat/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPchatId": "nxtPchatId"
+      },
+      "namedRegex": "^/chat/(?<nxtPchatId>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/company/[id]",
+      "regex": "^/company/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/company/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/employer/postings/[id]/applicants",
+      "regex": "^/employer/postings/([^/]+?)/applicants(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/employer/postings/(?<nxtPid>[^/]+?)/applicants(?:/)?$"
+    },
+    {
+      "page": "/employer/postings/[id]/edit",
+      "regex": "^/employer/postings/([^/]+?)/edit(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/employer/postings/(?<nxtPid>[^/]+?)/edit(?:/)?$"
+    },
+    {
+      "page": "/employer/postings/[id]/pipeline",
+      "regex": "^/employer/postings/([^/]+?)/pipeline(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/employer/postings/(?<nxtPid>[^/]+?)/pipeline(?:/)?$"
+    },
+    {
+      "page": "/opportunities/[id]",
+      "regex": "^/opportunities/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/opportunities/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/opportunities/[id]/apply",
+      "regex": "^/opportunities/([^/]+?)/apply(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/opportunities/(?<nxtPid>[^/]+?)/apply(?:/)?$"
+    },
+    {
+      "page": "/users/[id]",
+      "regex": "^/users/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/users/(?<nxtPid>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/admin",
+      "regex": "^/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin(?:/)?$"
+    },
+    {
+      "page": "/ai-tools",
+      "regex": "^/ai\\-tools(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/ai\\-tools(?:/)?$"
+    },
+    {
+      "page": "/ai-tools/career-path",
+      "regex": "^/ai\\-tools/career\\-path(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/ai\\-tools/career\\-path(?:/)?$"
+    },
+    {
+      "page": "/ai-tools/cover-letter",
+      "regex": "^/ai\\-tools/cover\\-letter(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/ai\\-tools/cover\\-letter(?:/)?$"
+    },
+    {
+      "page": "/ai-tools/email-templates",
+      "regex": "^/ai\\-tools/email\\-templates(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/ai\\-tools/email\\-templates(?:/)?$"
+    },
+    {
+      "page": "/ai-tools/interview-prep",
+      "regex": "^/ai\\-tools/interview\\-prep(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/ai\\-tools/interview\\-prep(?:/)?$"
+    },
+    {
+      "page": "/ai-tools/linkedin",
+      "regex": "^/ai\\-tools/linkedin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/ai\\-tools/linkedin(?:/)?$"
+    },
+    {
+      "page": "/ai-tools/resume-builder",
+      "regex": "^/ai\\-tools/resume\\-builder(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/ai\\-tools/resume\\-builder(?:/)?$"
+    },
+    {
+      "page": "/ai-tools/resume-match",
+      "regex": "^/ai\\-tools/resume\\-match(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/ai\\-tools/resume\\-match(?:/)?$"
+    },
+    {
+      "page": "/ai-tools/salary",
+      "regex": "^/ai\\-tools/salary(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/ai\\-tools/salary(?:/)?$"
+    },
+    {
+      "page": "/ai-tools/skill-gap",
+      "regex": "^/ai\\-tools/skill\\-gap(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/ai\\-tools/skill\\-gap(?:/)?$"
+    },
+    {
+      "page": "/analytics",
+      "regex": "^/analytics(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/analytics(?:/)?$"
+    },
+    {
+      "page": "/applications",
+      "regex": "^/applications(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/applications(?:/)?$"
+    },
+    {
+      "page": "/applied",
+      "regex": "^/applied(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/applied(?:/)?$"
+    },
+    {
+      "page": "/checkout/success",
+      "regex": "^/checkout/success(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/checkout/success(?:/)?$"
+    },
+    {
+      "page": "/dashboard",
+      "regex": "^/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard(?:/)?$"
+    },
+    {
+      "page": "/employer/analytics",
+      "regex": "^/employer/analytics(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/employer/analytics(?:/)?$"
+    },
+    {
+      "page": "/employer/dashboard",
+      "regex": "^/employer/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/employer/dashboard(?:/)?$"
+    },
+    {
+      "page": "/employer/postings",
+      "regex": "^/employer/postings(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/employer/postings(?:/)?$"
+    },
+    {
+      "page": "/employer/postings/new",
+      "regex": "^/employer/postings/new(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/employer/postings/new(?:/)?$"
+    },
+    {
+      "page": "/employer/profile",
+      "regex": "^/employer/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/employer/profile(?:/)?$"
+    },
+    {
+      "page": "/employer/profile/edit",
+      "regex": "^/employer/profile/edit(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/employer/profile/edit(?:/)?$"
+    },
+    {
+      "page": "/employers",
+      "regex": "^/employers(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/employers(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/forgot-password",
+      "regex": "^/forgot\\-password(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/forgot\\-password(?:/)?$"
+    },
+    {
+      "page": "/inbox",
+      "regex": "^/inbox(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/inbox(?:/)?$"
+    },
+    {
+      "page": "/insights",
+      "regex": "^/insights(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/insights(?:/)?$"
+    },
+    {
+      "page": "/login",
+      "regex": "^/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/manifest.webmanifest",
+      "regex": "^/manifest\\.webmanifest(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/manifest\\.webmanifest(?:/)?$"
+    },
+    {
+      "page": "/opportunities",
+      "regex": "^/opportunities(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/opportunities(?:/)?$"
+    },
+    {
+      "page": "/pricing",
+      "regex": "^/pricing(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pricing(?:/)?$"
+    },
+    {
+      "page": "/privacy-policy",
+      "regex": "^/privacy\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/privacy\\-policy(?:/)?$"
+    },
+    {
+      "page": "/profile",
+      "regex": "^/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile(?:/)?$"
+    },
+    {
+      "page": "/profile/edit",
+      "regex": "^/profile/edit(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile/edit(?:/)?$"
+    },
+    {
+      "page": "/saved",
+      "regex": "^/saved(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/saved(?:/)?$"
+    },
+    {
+      "page": "/signup",
+      "regex": "^/signup(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/signup(?:/)?$"
+    },
+    {
+      "page": "/terms",
+      "regex": "^/terms(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/terms(?:/)?$"
+    },
+    {
+      "page": "/users",
+      "regex": "^/users(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/users(?:/)?$"
+    },
+    {
+      "page": "/video-call",
+      "regex": "^/video\\-call(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/video\\-call(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments"
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}
