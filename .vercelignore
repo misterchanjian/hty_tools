@@ -1,0 +1,8 @@
+.open-next/
+.wrangler/
+.next/
+node_modules/.cache/
+*.test.ts
+*.spec.ts
+scripts/
+__tests__/
