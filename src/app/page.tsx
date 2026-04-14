@@ -2,20 +2,21 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getSession } from "@/lib/auth";
+import { onAuthStateChange } from "@/lib/auth";
 
 export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const session = getSession();
-    if (session) {
-      router.replace("/(app)/dashboard");
-    } else {
-      router.replace("/login");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const unsub = onAuthStateChange((user) => {
+      if (user) {
+        router.replace("/dashboard");
+      } else {
+        router.replace("/login");
+      }
+    });
+    return unsub;
+  }, [router]);
 
   return (
     <div className="flex h-screen w-full items-center justify-center bg-slate-950">

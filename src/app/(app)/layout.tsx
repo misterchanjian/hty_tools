@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { getSession, clearSession, type Session } from "@/lib/auth";
+import { onAuthStateChange, signOut, type AppUser } from "@/lib/auth";
 import {
   Droplets,
   LayoutDashboard,
   Settings,
   LogOut,
   ChevronRight,
-  ChevronDown,
   Menu,
   X,
 } from "lucide-react";
@@ -46,20 +45,16 @@ function NavItem({
 }
 
 function Sidebar({
-  session,
+  user,
   onClose,
+  onLogout,
 }: {
-  session: Session;
+  user: AppUser;
   onClose?: () => void;
+  onLogout: () => void;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const isAdmin = session.role === "super_admin";
-
-  const handleLogout = () => {
-    clearSession();
-    router.push("/login");
-  };
+  const isAdmin = user.role === "super_admin" || user.role === "admin";
 
   const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "砂含水计算器" },
@@ -76,8 +71,8 @@ function Sidebar({
           <Droplets className="w-5 h-5 text-blue-400" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-white font-semibold text-sm truncate">{session.name}</p>
-          <p className="text-slate-400 text-xs truncate">{session.phone}</p>
+          <p className="text-white font-semibold text-sm truncate">{user.name}</p>
+          <p className="text-slate-400 text-xs truncate">{user.phone}</p>
         </div>
         {onClose && (
           <button
@@ -104,7 +99,7 @@ function Sidebar({
       {/* Footer */}
       <div className="px-3 py-4 border-t border-slate-800 space-y-1">
         <button
-          onClick={handleLogout}
+          onClick={onLogout}
           className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all"
         >
           <LogOut className="w-5 h-5" />
@@ -117,21 +112,28 @@ function Sidebar({
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const s = getSession();
-    if (!s) {
-      router.replace("/login");
-      return;
-    }
-    setSession(s);
-    setLoading(false);
+    const unsub = onAuthStateChange((u) => {
+      if (!u) {
+        router.replace("/login");
+        return;
+      }
+      setUser(u);
+      setLoading(false);
+    });
+    return unsub;
   }, [router]);
 
-  if (loading || !session) {
+  const handleLogout = async () => {
+    await signOut();
+    router.push("/login");
+  };
+
+  if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950">
         <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
@@ -143,7 +145,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-slate-950 flex">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-64 flex-col bg-slate-900/80 border-r border-slate-800 flex-shrink-0">
-        <Sidebar session={session} />
+        <Sidebar user={user} onLogout={handleLogout} />
       </aside>
 
       {/* Mobile Sidebar Overlay */}
@@ -154,7 +156,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             onClick={() => setSidebarOpen(false)}
           />
           <aside className="relative w-72 bg-slate-900 border-r border-slate-800 flex-shrink-0">
-            <Sidebar session={session} onClose={() => setSidebarOpen(false)} />
+            <Sidebar user={user} onClose={() => setSidebarOpen(false)} onLogout={handleLogout} />
           </aside>
         </div>
       )}

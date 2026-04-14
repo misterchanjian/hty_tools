@@ -2,37 +2,40 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { login, getSession } from "@/lib/auth";
+import { login, onAuthStateChange } from "@/lib/auth";
 import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Redirect if already logged in
   useEffect(() => {
-    const session = getSession();
-    if (session) {
-      router.replace("/dashboard");
-    }
+    const unsub = onAuthStateChange((user) => {
+      if (user) router.replace("/dashboard");
+    });
+    return unsub;
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 300));
-    const result = login(phone.trim(), password);
+    const result = await login(email.trim(), password);
     if (result.ok) {
       // 清除水分管理系统的本地缓存，每次登录都是空白表单
-      localStorage.removeItem("cc_moisture_data");
-      localStorage.removeItem("cc_moisture_history");
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("cc_moisture_data");
+        localStorage.removeItem("cc_moisture_history");
+      }
       router.push("/dashboard");
     } else {
       setError(result.message);
@@ -64,18 +67,18 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4" suppressHydrationWarning>
             <div className="space-y-1.5">
-              <Label htmlFor="phone" className="text-slate-300 text-sm font-medium">
-                手机号
+              <Label htmlFor="email" className="text-slate-300 text-sm font-medium">
+                邮箱
               </Label>
               <Input
-                id="phone"
-                type="tel"
-                inputMode="tel"
-                placeholder="请输入手机号"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                id="email"
+                type="email"
+                inputMode="email"
+                placeholder="请输入邮箱"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="bg-slate-800/60 border-slate-600 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 h-11"
-                autoComplete="tel"
+                autoComplete="email"
                 required
               />
             </div>
@@ -117,7 +120,7 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              disabled={isLoading || !phone || !password}
+              disabled={isLoading || !email || !password}
               className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
             >
               {isLoading ? (
@@ -132,9 +135,17 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-slate-500 text-xs mt-4">
-          联系管理员：<a href="tel:19976679595" className="text-blue-400 hover:text-blue-300 underline underline-offset-2">19976679595</a>
-        </p>
+        <div className="text-center space-y-2 mt-4">
+          <p className="text-slate-500 text-xs">
+            没有账号？{" "}
+            <Link href="/signup" className="text-blue-400 hover:text-blue-300 underline underline-offset-2">
+              注册账号
+            </Link>
+          </p>
+          <p className="text-slate-500 text-xs">
+            联系管理员：<a href="tel:19976679595" className="text-blue-400 hover:text-blue-300 underline underline-offset-2">19976679595</a>
+          </p>
+        </div>
       </div>
     </div>
   );

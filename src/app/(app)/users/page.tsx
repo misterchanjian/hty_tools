@@ -6,8 +6,18 @@ import { Plus, Trash2, User, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getSession, getUsers, createUser, deleteUser } from "@/lib/auth";
-import type { Session } from "@/lib/auth";
+import { onAuthStateChange, register, type AppUser } from "@/lib/auth";
+import { collection, getDocs, doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
+interface StoredUser {
+  id: string;        // Firestore doc id = Firebase UID
+  uid: string;
+  email: string;
+  displayName: string;
+  role: string;
+  createdAt: any;
+}
 
 function roleBadge(role: string): { text: string; color: string } {
   if (role === "super_admin") return { text: "超级管理员", color: "bg-purple-500/10 text-purple-400 border-purple-500/30" };
@@ -15,60 +25,84 @@ function roleBadge(role: string): { text: string; color: string } {
   return { text: "普通用户", color: "bg-slate-500/10 text-slate-400 border-slate-500/30" };
 }
 
-interface StoredUser {
-  id: string;
-  phone: string;
-  password?: string;
-  name: string;
-  role: string;
-  createdAt: string;
-}
-
 export default function UsersPage() {
   const router = useRouter();
-  const [session, setSession] = useState<Session | null>(null);
+  const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
   const [users, setUsers] = useState<StoredUser[]>([]);
   const [showAdd, setShowAdd] = useState(false);
-  const [newPhone, setNewPhone] = useState("");
+  const [newEmail, setNewEmail] = useState("");
   const [newName, setNewName] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newRole, setNewRole] = useState("user");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const s = getSession();
-    if (!s || (s.role !== "super_admin" && s.role !== "admin")) {
-      router.replace("/(app)/dashboard");
-      return;
-    }
-    setSession(s);
-    setUsers(getUsers() as StoredUser[]);
+    const unsub = onAuthStateChange(async (u) => {
+      if (!u || (u.role !== "super_admin" && u.role !== "admin")) {
+        router.replace("/dashboard");
+        return;
+      }
+      setCurrentUser(u);
+      // Fetch users from Firestore
+      try {
+        const snap = await getDocs(collection(db, "users"));
+        const list = snap.docs.map((d) => ({ id: d.id, ...d.data() } as StoredUser));
+        setUsers(list);
+      } catch {
+        // Firestore not available
+      }
+      setLoading(false);
+    });
+    return unsub;
   }, [router]);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     setError("");
-    if (!newPhone.trim()) { setError("请输入手机号"); return; }
+    if (!newEmail.trim()) { setError("请输入邮箱"); return; }
     if (!newPassword.trim()) { setError("请输入密码"); return; }
+    if (newPassword.length < 6) { setError("密码至少6位"); return; }
     if (!newName.trim()) { setError("请输入姓名"); return; }
 
-    const result = createUser({ phone: newPhone.trim(), name: newName.trim(), password: newPassword.trim() });
+    const result = await register(newEmail.trim(), newPassword.trim(), newName.trim());
     if (!result.ok) { setError(result.message); return; }
 
-    setUsers(getUsers() as StoredUser[]);
+    // Update role in Firestore
+    if (newRole !== "user" && result.user.uid) {
+      await updateDoc(doc(db, "users", result.user.uid), { role: newRole });
+    }
+
+    // Refresh list
+    const snap = await getDocs(collection(db, "users"));
+    setUsers(snap.docs.map((d) => ({ id: d.id, ...d.data() } as StoredUser)));
+
     setShowAdd(false);
-    setNewPhone("");
+    setNewEmail("");
     setNewName("");
     setNewPassword("");
     setNewRole("user");
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (uid: string) => {
     if (!confirm("确定删除该用户？")) return;
-    deleteUser(id);
-    setUsers(getUsers() as StoredUser[]);
+    try {
+      await deleteDoc(doc(db, "users", uid));
+      setUsers((prev) => prev.filter((u) => u.id !== uid));
+    } catch {
+      setError("删除失败");
+    }
   };
 
-  if (!session) {
+  const handleChangeRole = async (uid: string, newRole: string) => {
+    try {
+      await updateDoc(doc(db, "users", uid), { role: newRole });
+      setUsers((prev) => prev.map((u) => u.id === uid ? { ...u, role: newRole } : u));
+    } catch {
+      setError("更新角色失败");
+    }
+  };
+
+  if (loading || !currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950">
         <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
@@ -106,12 +140,12 @@ export default function UsersPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-slate-400 text-xs">手机号</Label>
+                <Label className="text-slate-400 text-xs">邮箱</Label>
                 <Input
-                  type="tel"
-                  value={newPhone}
-                  onChange={(e) => setNewPhone(e.target.value)}
-                  placeholder="手机号"
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="邮箱地址"
                   className="bg-slate-800/60 border-slate-700 text-white h-10"
                 />
               </div>
@@ -133,7 +167,7 @@ export default function UsersPage() {
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="密码"
+                  placeholder="至少6位"
                   className="bg-slate-800/60 border-slate-700 text-white h-10"
                 />
               </div>
@@ -146,6 +180,7 @@ export default function UsersPage() {
                 >
                   <option value="user">普通用户</option>
                   <option value="admin">管理员</option>
+                  <option value="super_admin">超级管理员</option>
                 </select>
               </div>
             </div>
@@ -185,30 +220,38 @@ export default function UsersPage() {
             users.map((u) => {
               const { text, color } = roleBadge(u.role);
               return (
-                <div key={u.phone} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex items-center gap-4">
-                  {/* Avatar */}
+                <div key={u.id} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0">
                     <User className="w-5 h-5 text-slate-500" />
                   </div>
 
-                  {/* Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-white font-medium text-sm">{u.name}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full border ${color}`}>{text}</span>
+                      <span className="text-white font-medium text-sm">{u.displayName || u.email}</span>
+                      <select
+                        value={u.role || "user"}
+                        onChange={(e) => handleChangeRole(u.id, e.target.value)}
+                        className={`text-xs px-2 py-0.5 rounded-full border bg-transparent cursor-pointer ${color}`}
+                      >
+                        <option value="user">普通用户</option>
+                        <option value="admin">管理员</option>
+                        <option value="super_admin">超级管理员</option>
+                      </select>
                     </div>
                     <div className="flex items-center gap-3 mt-0.5">
-                      <span className="text-slate-500 text-xs font-mono">{u.phone}</span>
-                      <span className="text-slate-600 text-xs">
-                        {new Date(u.createdAt).toLocaleDateString("zh-CN")}
-                      </span>
+                      <span className="text-slate-500 text-xs font-mono">{u.email}</span>
+                      {u.createdAt && (
+                        <span className="text-slate-600 text-xs">
+                          {u.createdAt?.toDate?.()?.toLocaleDateString?.("zh-CN") || ""}
+                        </span>
+                      )}
                     </div>
                   </div>
 
-                  {/* Delete */}
                   <button
                     onClick={() => handleDelete(u.id)}
                     className="p-2 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors flex-shrink-0"
+                    title="删除用户"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
