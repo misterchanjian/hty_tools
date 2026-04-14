@@ -1,13 +1,14 @@
-// Local auth - no external dependencies needed
+// Local auth - single super admin account
+// Supports multiple devices simultaneously (all devices use same credentials)
 
-// Hardcoded users (super simple auth for internal tool)
-const HARDCODE_USERS = [
-  { id: "1", uid: "super-admin", phone: "root", name: "超级管理员", role: "super_admin", password: "huangwei" },
-  { id: "2", uid: "user-1", phone: "陈正发", name: "陈正发", role: "user", password: "123456" },
-  { id: "3", uid: "user-2", phone: "吴鼎恒", name: "吴鼎恒", role: "user", password: "123456" },
-  { id: "4", uid: "user-3", phone: "李勇", name: "李勇", role: "user", password: "123456" },
-  { id: "5", uid: "user-4", phone: "袁壹虎", name: "袁壹虎", role: "user", password: "123456" },
-] as const;
+const SUPER_ADMIN = {
+  id: "1",
+  uid: "super-admin",
+  phone: "hty",
+  name: "管理员",
+  role: "super_admin" as const,
+  password: "hty168",
+};
 
 export interface AppUser {
   id: string;
@@ -47,35 +48,29 @@ export async function login(
   phone: string,
   password: string
 ): Promise<{ ok: true; user: AppUser } | { ok: false; message: string }> {
-  // Find user by phone
-  const user = HARDCODE_USERS.find(
-    (u) => u.phone === phone && u.password === password
-  );
-
-  if (!user) {
-    return { ok: false, message: "手机号或密码错误" };
+  if (phone === SUPER_ADMIN.phone && password === SUPER_ADMIN.password) {
+    const appUser: AppUser = {
+      id: SUPER_ADMIN.id,
+      uid: SUPER_ADMIN.uid,
+      phone: SUPER_ADMIN.phone,
+      name: SUPER_ADMIN.name,
+      role: SUPER_ADMIN.role,
+      createdAt: new Date().toISOString(),
+    };
+    setSession(appUser);
+    return { ok: true, user: appUser };
   }
 
-  const appUser: AppUser = {
-    id: user.id,
-    uid: user.uid,
-    phone: user.phone,
-    name: user.name,
-    role: user.role,
-    createdAt: new Date().toISOString(),
-  };
-
-  setSession(appUser);
-  return { ok: true, user: appUser };
+  return { ok: false, message: "账号或密码错误" };
 }
 
-// Register (disabled - using hardcoded users)
+// Register (disabled)
 export async function register(
   email: string,
   password: string,
   name: string
 ): Promise<{ ok: true; user: AppUser } | { ok: false; message: string }> {
-  return { ok: false, message: "暂不支持注册，请联系管理员添加账号" };
+  return { ok: false, message: "暂不支持注册" };
 }
 
 // Sign out
@@ -90,11 +85,9 @@ export function getCurrentUser(): AppUser | null {
 
 // Auth state listener (simulated for compatibility)
 export function onAuthStateChange(callback: (user: AppUser | null) => void): () => void {
-  // Check immediately
   const user = getSession();
   callback(user);
 
-  // Listen to storage changes (for multi-tab)
   if (typeof window !== "undefined") {
     const handler = (e: StorageEvent) => {
       if (e.key === "cc_user") {
