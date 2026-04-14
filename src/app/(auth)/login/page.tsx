@@ -2,40 +2,45 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { login, onAuthStateChange } from "@/lib/auth";
+import { login, onAuthStateChange, getCurrentUser } from "@/lib/auth";
 import { Eye, EyeOff } from "lucide-react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Redirect if already logged in
+  // Check if already logged in
   useEffect(() => {
-    const unsub = onAuthStateChange((user) => {
-      if (user) router.replace("/dashboard");
-    });
-    return unsub;
+    const user = getCurrentUser();
+    if (user) {
+      router.replace("/dashboard");
+    }
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!phone.trim()) {
+      setError("请输入手机号");
+      return;
+    }
+    if (!password) {
+      setError("请输入密码");
+      return;
+    }
+
     setIsLoading(true);
-    const result = await login(email.trim(), password);
+    const result = await login(phone.trim(), password);
+
     if (result.ok) {
-      // 清除水分管理系统的本地缓存，每次登录都是空白表单
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("cc_moisture_data");
-        localStorage.removeItem("cc_moisture_history");
-      }
       router.push("/dashboard");
     } else {
       setError(result.message);
@@ -45,6 +50,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-950 via-slate-900 to-slate-950 px-4">
+      {/* Background effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 -left-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl" />
@@ -63,22 +69,21 @@ export default function LoginPage() {
 
         {/* Login Card */}
         <div className="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 shadow-2xl">
-          <h2 className="text-lg font-semibold text-white mb-6 text-center">欢迎回来</h2>
+          <h2 className="text-lg font-semibold text-white mb-6 text-center">账号登录</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4" suppressHydrationWarning>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-slate-300 text-sm font-medium">
-                邮箱
+              <Label htmlFor="phone" className="text-slate-300 text-sm font-medium">
+                手机号 / 用户名
               </Label>
               <Input
-                id="email"
-                type="email"
-                inputMode="email"
-                placeholder="请输入邮箱"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="phone"
+                type="text"
+                placeholder="请输入手机号"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 className="bg-slate-800/60 border-slate-600 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 h-11"
-                autoComplete="email"
+                autoComplete="username"
                 required
               />
             </div>
@@ -103,11 +108,7 @@ export default function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
@@ -120,11 +121,11 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              disabled={isLoading || !email || !password}
+              disabled={isLoading}
               className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
             >
               {isLoading ? (
-                <span className="flex items-center gap-2">
+                <span className="flex items-center justify-center gap-2">
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   登录中...
                 </span>
@@ -133,19 +134,18 @@ export default function LoginPage() {
               )}
             </Button>
           </form>
+
+          <div className="text-center mt-4">
+            <p className="text-slate-500 text-xs">
+              联系管理员：<a href="tel:19976679595" className="text-blue-400 hover:text-blue-300 underline underline-offset-2">19976679595</a>
+            </p>
+          </div>
         </div>
 
-        <div className="text-center space-y-2 mt-4">
-          <p className="text-slate-500 text-xs">
-            没有账号？{" "}
-            <Link href="/signup" className="text-blue-400 hover:text-blue-300 underline underline-offset-2">
-              注册账号
-            </Link>
-          </p>
-          <p className="text-slate-500 text-xs">
-            联系管理员：<a href="tel:19976679595" className="text-blue-400 hover:text-blue-300 underline underline-offset-2">19976679595</a>
-          </p>
-        </div>
+        {/* Footer */}
+        <p className="text-center text-slate-600 text-xs mt-6">
+          © 2026 长沙汇砼亿新材料有限公司
+        </p>
       </div>
     </div>
   );

@@ -1,119 +1,115 @@
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut as firebaseSignOut,
-  onAuthStateChanged,
-  type User as FirebaseUser,
-} from "firebase/auth";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { auth, db } from "./firebase";
+// Local auth - no external dependencies needed
 
-export type UserRole = "super_admin" | "user";
+// Hardcoded users (super simple auth for internal tool)
+const HARDCODE_USERS = [
+  { id: "1", uid: "super-admin", phone: "root", name: "超级管理员", role: "super_admin", password: "huangwei" },
+  { id: "2", uid: "user-1", phone: "陈正发", name: "陈正发", role: "user", password: "123456" },
+  { id: "3", uid: "user-2", phone: "吴鼎恒", name: "吴鼎恒", role: "user", password: "123456" },
+  { id: "4", uid: "user-3", phone: "李勇", name: "李勇", role: "user", password: "123456" },
+  { id: "5", uid: "user-4", phone: "袁壹虎", name: "袁壹虎", role: "user", password: "123456" },
+] as const;
 
 export interface AppUser {
   id: string;
-  uid: string;           // Firebase UID
-  phone: string;         // stored as email in Firebase Auth
+  uid: string;
+  phone: string;
   name: string;
-  role: UserRole;
-  createdAt: string;
+  role: "super_admin" | "admin" | "user";
+  createdAt?: string;
 }
 
-// Map Firebase user to AppUser
-function mapFirebaseUser(fbUser: FirebaseUser, displayName?: string): AppUser {
-  return {
-    id: fbUser.uid,
-    uid: fbUser.uid,
-    phone: fbUser.email || "",
-    name: displayName || fbUser.displayName || fbUser.email || "用户",
-    role: "user", // default; will be overwritten by Firestore lookup
-    createdAt: fbUser.metadata.creationTime || new Date().toISOString(),
-  };
-}
-
-// Login with Firebase Auth
-export async function login(
-  email: string,
-  password: string
-): Promise<{ ok: true; user: AppUser } | { ok: false; message: string }> {
+// Get session from localStorage
+function getSession(): AppUser | null {
+  if (typeof window === "undefined") return null;
+  const stored = localStorage.getItem("cc_user");
+  if (!stored) return null;
   try {
-    const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
-    // Fetch role from Firestore
-    const snap = await getDoc(doc(db, "users", cred.user.uid));
-    let role: UserRole = "user";
-    let name = cred.user.displayName || email;
-    if (snap.exists()) {
-      const data = snap.data();
-      role = (data.role as UserRole) || "user";
-      name = data.displayName || name;
-    }
-    return {
-      ok: true,
-      user: { id: cred.user.uid, uid: cred.user.uid, phone: cred.user.email || "", name, role, createdAt: cred.user.metadata.creationTime || "" },
-    };
-  } catch (err: any) {
-    const msg = err.code === "auth/invalid-credential"
-      ? "邮箱或密码错误"
-      : err.code === "auth/user-not-found"
-      ? "用户不存在"
-      : err.code === "auth/wrong-password"
-      ? "密码错误"
-      : "登录失败，请重试";
-    return { ok: false, message: msg };
+    return JSON.parse(stored) as AppUser;
+  } catch {
+    return null;
   }
 }
 
-// Register new user (Firebase Auth + Firestore)
+// Save session to localStorage
+function setSession(user: AppUser): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem("cc_user", JSON.stringify(user));
+}
+
+// Clear session
+function clearSession(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem("cc_user");
+}
+
+// Login with phone + password
+export async function login(
+  phone: string,
+  password: string
+): Promise<{ ok: true; user: AppUser } | { ok: false; message: string }> {
+  // Find user by phone
+  const user = HARDCODE_USERS.find(
+    (u) => u.phone === phone && u.password === password
+  );
+
+  if (!user) {
+    return { ok: false, message: "手机号或密码错误" };
+  }
+
+  const appUser: AppUser = {
+    id: user.id,
+    uid: user.uid,
+    phone: user.phone,
+    name: user.name,
+    role: user.role,
+    createdAt: new Date().toISOString(),
+  };
+
+  setSession(appUser);
+  return { ok: true, user: appUser };
+}
+
+// Register (disabled - using hardcoded users)
 export async function register(
   email: string,
   password: string,
   name: string
 ): Promise<{ ok: true; user: AppUser } | { ok: false; message: string }> {
-  try {
-    const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
-    await setDoc(doc(db, "users", cred.user.uid), {
-      displayName: name,
-      email: cred.user.email,
-      role: "user",
-      createdAt: serverTimestamp(),
-    });
-    return {
-      ok: true,
-      user: { id: cred.user.uid, uid: cred.user.uid, phone: cred.user.email || "", name, role: "user", createdAt: cred.user.metadata.creationTime || "" },
-    };
-  } catch (err: any) {
-    const msg = err.code === "auth/email-already-in-use"
-      ? "该邮箱已被注册"
-      : err.code === "auth/weak-password"
-      ? "密码至少6位"
-      : err.code === "auth/invalid-email"
-      ? "邮箱格式无效"
-      : "注册失败，请重试";
-    return { ok: false, message: msg };
-  }
+  return { ok: false, message: "暂不支持注册，请联系管理员添加账号" };
 }
 
 // Sign out
 export async function signOut(): Promise<void> {
-  if (auth) await firebaseSignOut(auth);
+  clearSession();
 }
 
-// Subscribe to auth state
-export function onAuthStateChange(callback: (user: AppUser | null) => void) {
-  if (!auth) return () => {};
-  return onAuthStateChanged(auth, async (fbUser) => {
-    if (!fbUser) {
-      callback(null);
-      return;
-    }
-    const snap = await getDoc(doc(db, "users", fbUser.uid));
-    let role: UserRole = "user";
-    let name = fbUser.displayName || fbUser.email || "用户";
-    if (snap.exists()) {
-      const data = snap.data();
-      role = (data.role as UserRole) || "user";
-      name = data.displayName || name;
-    }
-    callback({ id: fbUser.uid, uid: fbUser.uid, phone: fbUser.email || "", name, role, createdAt: fbUser.metadata.creationTime || "" });
-  });
+// Get current user
+export function getCurrentUser(): AppUser | null {
+  return getSession();
+}
+
+// Auth state listener (simulated for compatibility)
+export function onAuthStateChange(callback: (user: AppUser | null) => void): () => void {
+  // Check immediately
+  const user = getSession();
+  callback(user);
+
+  // Listen to storage changes (for multi-tab)
+  if (typeof window !== "undefined") {
+    const handler = (e: StorageEvent) => {
+      if (e.key === "cc_user") {
+        const user = e.newValue ? JSON.parse(e.newValue) : null;
+        callback(user);
+      }
+    };
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }
+
+  return () => {};
+}
+
+// Check if user is admin
+export function isAdmin(user: AppUser | null): boolean {
+  return user?.role === "super_admin" || user?.role === "admin";
 }
