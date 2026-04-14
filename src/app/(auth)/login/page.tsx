@@ -74,12 +74,12 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="phone" className="text-slate-300 text-sm font-medium">
-                手机号 / 用户名
+                账号
               </Label>
               <Input
                 id="phone"
                 type="text"
-                placeholder="请输入手机号"
+                placeholder="请输入账号"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="bg-slate-800/60 border-slate-600 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 h-11"
