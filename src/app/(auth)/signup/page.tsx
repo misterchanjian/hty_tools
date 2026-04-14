@@ -136,12 +136,12 @@ export default function SignupPage() {
           >
             <Image
               src="https://i.postimg.cc/nLrDYrHW/icon.png"
-              alt="CareerCompass logo"
+              alt="长沙汇砼亿"
               width={32}
               height={32}
               className="bg-white/10 backdrop-blur-sm p-1 rounded-lg"
             />
-            <span>CareerCompass</span>
+            <span>长沙汇砼亿</span>
           </Link>
         </div>
 
@@ -181,12 +181,12 @@ export default function SignupPage() {
           <div className="lg:hidden flex items-center justify-center gap-2 text-lg font-semibold mb-12">
             <Image
               src="https://i.postimg.cc/nLrDYrHW/icon.png"
-              alt="CareerCompass logo"
+              alt="长沙汇砼亿"
               width={32}
               height={32}
               className="dark:bg-white dark:p-1 dark:rounded-md"
             />
-            <span>CareerCompass</span>
+            <span>长沙汇砼亿</span>
           </div>
 
           {/* Header */}
@@ -195,7 +195,7 @@ export default function SignupPage() {
               Create an account
             </h1>
             <p className="text-muted-foreground text-sm">
-              Join CareerCompass to find your next opportunity
+              长沙汇砼亿新材料有限公司 — 砂含水调整计算系统
             </p>
           </div>
 

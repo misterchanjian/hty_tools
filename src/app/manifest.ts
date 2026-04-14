@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "CareerCompass",
-    short_name: "CareerCompass",
+    name: "长沙汇砼亿新材料有限公司",
+    short_name: "汇砼亿",
     description: "Your guide to professional growth and opportunities.",
     start_url: "/",
     display: "standalone",

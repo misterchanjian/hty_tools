@@ -59,7 +59,7 @@ export function InstallPrompt() {
               <Download className="h-5 w-5 text-indigo-500" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium">Install CareerCompass</p>
+              <p className="text-sm font-medium">安装长沙汇砼亿</p>
               <p className="text-xs text-muted-foreground">
                 Quick access from your home screen
               </p>

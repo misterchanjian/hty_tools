@@ -11,13 +11,13 @@ export default function ClientSidebarHeader() {
     <Link href={dashboardHref} className="flex items-center gap-2 p-2 group">
       <Image
         src="https://i.postimg.cc/nLrDYrHW/icon.png"
-        alt="CareerCompass logo"
+        alt="长沙汇砼亿"
         width={32}
         height={32}
         className="dark:bg-white dark:p-1 dark:rounded-3xl group-hover:opacity-80 transition"
       />
       <span className="text-xl font-bold tracking-tight max-md:hidden">
-        CareerCompass
+        长沙汇砼亿
       </span>
     </Link>
   );

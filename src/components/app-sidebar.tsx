@@ -227,7 +227,7 @@ export const Logo = ({ href }: { href: string }) => {
     >
       <Image
         src="https://i.postimg.cc/nLrDYrHW/icon.png"
-        alt="CareerCompass logo"
+        alt="长沙汇砼亿"
         width={24}
         height={24}
         className="dark:bg-white dark:p-0.5 dark:rounded-3xl flex-shrink-0"
@@ -237,7 +237,7 @@ export const Logo = ({ href }: { href: string }) => {
         animate={{ opacity: 1 }}
         className="font-medium text-black dark:text-white whitespace-pre"
       >
-        CareerCompass
+        长沙汇砼亿
       </motion.span>
     </Link>
   );
@@ -251,7 +251,7 @@ export const LogoIcon = ({ href }: { href: string }) => {
     >
       <Image
         src="https://i.postimg.cc/nLrDYrHW/icon.png"
-        alt="CareerCompass logo"
+        alt="长沙汇砼亿"
         width={24}
         height={24}
         className="dark:bg-white dark:p-0.5 dark:rounded-3xl flex-shrink-0"

@@ -62,7 +62,7 @@ export default function LoginPage() {
         <div className="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 shadow-2xl">
           <h2 className="text-lg font-semibold text-white mb-6 text-center">欢迎回来</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" suppressHydrationWarning>
             <div className="space-y-1.5">
               <Label htmlFor="phone" className="text-slate-300 text-sm font-medium">
                 手机号

@@ -6,16 +6,16 @@ import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'CareerCompass',
-  description: 'Your guide to professional growth and opportunities.',
+  title: '长沙汇砼亿新材料有限公司',
+  description: '长沙汇砼亿新材料有限公司 — 砂含水调整计算系统',
   icons: {
-    icon: 'https://i.postimg.cc/nLrDYrHW/icon.png',
-    apple: 'https://i.postimg.cc/nLrDYrHW/icon.png',
+    icon: '/hty.png',
+    apple: '/hty.png',
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'CareerCompass',
+    title: '长沙汇砼亿新材料有限公司',
   },
   other: {
     'mobile-web-app-capable': 'yes',

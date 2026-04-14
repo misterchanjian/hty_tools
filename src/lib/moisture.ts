@@ -74,10 +74,11 @@ export function calcStandardWater(mixRatio: number, standardRate: number): numbe
   return mixRatio * standardRate;
 }
 
-// 实际含水量 = 配合比 × 实际含水率
+// 实际含水量 = (配合比 × 实际含水率/100) × (1 + 实际含水率/100)
 export function calcActualWater(mixRatio: number, actualRate: number): number | null {
   if (!mixRatio || !actualRate || mixRatio === 0 || actualRate === 0) return null;
-  return mixRatio * actualRate;
+  const rate = actualRate / 100;
+  return mixRatio * rate * (1 + rate);
 }
 
 // 新配合比用水量 = 基准用水量 + (实际含水量 - 标定含水量)
@@ -326,7 +327,8 @@ export async function downloadMoisturePDF(data: MoistureData, stationName: strin
     const stdR = data.standardRate[id] || 0;
     const actR = data.actualRate[id] || 0;
     const stdW = ratio * stdR / 100;
-    const actW = ratio * actR / 100;
+    const actRDecimal = actR / 100;
+    const actW = ratio * actRDecimal * (1 + actRDecimal);
     const diff = actW - stdW;
     const vals = [label, ratio.toFixed(1), stdR + "%", actR + "%", diff.toFixed(2)];
     doc.setFontSize(8.5);
@@ -337,10 +339,15 @@ export async function downloadMoisturePDF(data: MoistureData, stationName: strin
   }
   y += 4;
 
-  const totals = matMap.map(([id]) => ({
-    stdWater: (data.mixRatio[id] || 0) * (data.standardRate[id] || 0) / 100,
-    actWater: (data.mixRatio[id] || 0) * (data.actualRate[id] || 0) / 100,
-  }));
+  const totals = matMap.map(([id]) => {
+    const stdR = data.standardRate[id] || 0;
+    const actR = data.actualRate[id] || 0;
+    const actRDecimal = actR / 100;
+    return {
+      stdWater: (data.mixRatio[id] || 0) * stdR / 100,
+      actWater: (data.mixRatio[id] || 0) * actRDecimal * (1 + actRDecimal),
+    };
+  });
   const totStd = totals.reduce((s, r) => s + r.stdWater, 0);
   const totAct = totals.reduce((s, r) => s + r.actWater, 0);
   const newW = calcNewWaterUse(data.baseWater, totAct, totStd);

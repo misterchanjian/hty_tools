@@ -111,7 +111,7 @@ export const Logo = () => {
         animate={{ opacity: 1 }}
         className="font-medium text-black dark:text-white whitespace-pre"
       >
-        CareerCompass
+        长沙汇砼亿
       </motion.span>
     </Link>
   );

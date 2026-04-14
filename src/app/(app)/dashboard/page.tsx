@@ -362,7 +362,8 @@ function ModuleMix({ data, onChange }: { data: MoistureData; onChange: (d: Moist
     const stdRate = data.standardRate[m.id] ?? 0;
     const actRate = data.actualRate[m.id] ?? 0;
     const stdWater = ratio * stdRate / 100;
-    const actWater = ratio * actRate / 100;
+    const actRateDecimal = actRate / 100;
+    const actWater = ratio * actRateDecimal * (1 + actRateDecimal);
     const diff = actWater - stdWater;
     return { ...m, ratio, stdRate, actRate, stdWater, actWater, diff };
   });
@@ -433,8 +434,8 @@ function ModuleMix({ data, onChange }: { data: MoistureData; onChange: (d: Moist
 
       <Card title="用水量计算">
         <div className="space-y-2">
-          <ResultChip label="标定总用水量" value={totalStdWater.toFixed(2)} unit=" kg" color="blue" />
-          <ResultChip label="实际总用水量" value={totalActWater.toFixed(2)} unit=" kg" color="blue" />
+          <ResultChip label="人工标定总含水量" value={totalStdWater.toFixed(2)} unit=" kg" color="blue" />
+          <ResultChip label="自动采集总含水量" value={totalActWater.toFixed(2)} unit=" kg" color="blue" />
           <ResultChip label="总用水量差" value={`${totalDiff > 0 ? "+" : ""}${totalDiff.toFixed(2)}`} unit=" kg"
             color={totalDiff > 0 ? "orange" : totalDiff < 0 ? "green" : "blue"} />
           <div className="bg-green-500/10 border border-green-500/40 rounded-xl px-3 py-3">
